@@ -1,0 +1,11 @@
+{
+  "name": "Just an example project",
+  "description": "This is a project to test if jellyfish is working well...",
+  "tags": ["example", "jelly", "fish"],
+  "homepage": "https://example.com",
+  "created": "2016-06-11T09:51:40.312Z",
+  "type": "project",
+  "language": "javascript",
+  "active": true,
+  "finished": false
+}

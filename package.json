@@ -1,0 +1,17 @@
+{
+  "name": "jellyfish",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Victor Bjelkholm <victorbjelkholm@gmail.com> (https://www.github.com/victorbjelkholm)",
+  "license": "MIT",
+  "dependencies": {
+    "colors": "1.1.2",
+    "fs-extra": "0.30.0",
+    "node-fs-extra": "0.8.1"
+  }
+}
