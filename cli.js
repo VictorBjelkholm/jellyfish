@@ -1,5 +1,7 @@
 #! /usr/bin/env node
 const fs = require('fs-extra')
+const pathJoin = require('path').join
+const pathResolve = require('path').resolve
 const colors = require('colors/safe')
 const readJellyfishFile = require('./lib/read-jellyfish-file')
 const findProjectsInFolder = require('./lib/find-projects-in-folder')
@@ -26,35 +28,60 @@ const argv = require('minimist')(process.argv.slice(2), {
   }
 })
 
+var shouldUseCache = true
+if (argv.cache === false) {
+  shouldUseCache = false
+}
+
+const printProjects = (projects) => {
+  var projectsToPrint = projects
+  if (argv.search !== undefined) {
+    const searchTerms = argv.search.split(',').map((item) => {
+      const splitted = item.split('=')
+      const attr = splitted[0]
+      const term = splitted[1]
+      return {attr, term}
+    })
+    projectsToPrint = search(projects, searchTerms[0].attr, searchTerms[0].term)
+  }
+  if (projectsToPrint.length === 0) {
+    console.log(colors.yellow('Warning: Found no matching projects'))
+  } else {
+    projectsToPrint.forEach((project) => {
+      var jellyfishFile = project
+      if (argv.filter !== undefined) {
+        jellyfishFile = filter(jellyfishFile, argv.filter.split(','))
+      }
+      printJellyConfig(supportedProperties, jellyfishFile)
+    })
+  }
+}
+
 const commands = {}
 
 commands.new = () => {
   createJellyfishFile()
 }
-commands.print_directory = (path) => {
+commands.index = (path) => {
+  console.log('Indexing ' + pathResolve(path))
   findProjectsInFolder(path).then((projects) => {
-    var projectsToPrint = projects
-    if (argv.search !== undefined) {
-      const searchTerms = argv.search.split(',').map((item) => {
-        const splitted = item.split('=')
-        const attr = splitted[0]
-        const term = splitted[1]
-        return {attr, term}
-      })
-      projectsToPrint = search(projects, searchTerms[0].attr, searchTerms[0].term)
-    }
-    if (projectsToPrint.length === 0) {
-      console.log(colors.yellow('Warning: Found no matching projects'))
-    } else {
-      projectsToPrint.forEach((project) => {
-        var jellyfishFile = project
-        if (argv.filter !== undefined) {
-          jellyfishFile = filter(jellyfishFile, argv.filter.split(','))
-        }
-        printJellyConfig(supportedProperties, jellyfishFile)
-      })
-    }
+    fs.writeFileSync(pathJoin(process.cwd(), '.jellyfish-cache'), JSON.stringify(projects))
   })
+}
+commands.print_directory = (path) => {
+  var projects = []
+  if (shouldUseCache && fs.existsSync(pathJoin(process.cwd(), '.jellyfish-cache'))) {
+    projects = JSON.parse(fs.readFileSync(pathJoin(process.cwd(), '.jellyfish-cache')))
+    printProjects(projects)
+  } else {
+    if (shouldUseCache) {
+      console.log('No cache, indexing...')
+    }
+    findProjectsInFolder(path).then((projects) => {
+      printProjects(projects)
+      fs.writeFileSync(pathJoin(process.cwd(), '.jellyfish-cache'), JSON.stringify(projects))
+    })
+  }
 }
 commands.print_file = (path) => {
   var jellyfishFile = readJellyfishFile(path)
@@ -83,5 +110,5 @@ if (commands[pathOrCmd] === undefined) {
     commands.print_file(path)
   }
 } else {
-  commands[pathOrCmd]()
+  commands[pathOrCmd](argv._[1])
 }
