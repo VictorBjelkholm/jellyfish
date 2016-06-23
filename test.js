@@ -46,6 +46,18 @@ test('Multiple Filters', (t) => {
   t.is(results[0].description, undefined)
   t.deepEqual(results[0].tags, ['project', 'A'])
 })
+test('Filter works on one object', (t) => {
+  const results = filter(test_data[0], ['name', 'tags'])
+  t.is(results.name, 'Project A')
+  t.is(results.description, undefined)
+  t.deepEqual(results.tags, ['project', 'A'])
+})
+test('Filter always includes name', (t) => {
+  const results = filter(test_data[0], ['tags'])
+  t.is(results.name, 'Project A')
+  t.is(results.description, undefined)
+  t.deepEqual(results.tags, ['project', 'A'])
+})
 test('Reading jellyfish.json', (t) => {
   const jellyfishFile = readJellyfishFile('./example-jellyfish.json')
   t.is(jellyfishFile.name, 'Just an example project')

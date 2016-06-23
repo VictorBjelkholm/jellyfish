@@ -5,6 +5,7 @@ const readJellyfishFile = require('./lib/read-jellyfish-file')
 const findProjectsInFolder = require('./lib/find-projects-in-folder')
 const createJellyfishFile = require('./lib/create-jellyfish-file')
 const printJellyConfig = require('./lib/print-jellyfish-config')
+const filter = require('./lib/filter')
 
 const supportedProperties = [
   'description',
@@ -23,11 +24,6 @@ const argv = require('minimist')(process.argv.slice(2), {
     'search': ['s']
   }
 })
-if (argv.filter !== undefined) {
-  console.log(colors.yellow('NOT IMPLEMENTED YET!'))
-  console.log('Should do some filtering as well')
-  console.log(argv.filter)
-}
 if (argv.search !== undefined) {
   console.log(colors.yellow('NOT IMPLEMENTED YET!'))
   console.log('Should do some searching as well')
@@ -41,13 +37,17 @@ commands.new = () => {
 }
 commands.print_directory = (path) => {
   findProjectsInFolder(path).then((projects) => {
-    projects.forEach((project) => {
+    filter(projects, [argv.filter]).forEach((project) => {
       printJellyConfig(supportedProperties, project)
     })
   })
 }
 commands.print_file = (path) => {
-  printJellyConfig(supportedProperties, readJellyfishFile(path))
+  var jellyfishFile = readJellyfishFile(path)
+  if (argv.filter !== undefined) {
+    jellyfishFile = filter(jellyfishFile, argv.filter.split(','))
+  }
+  printJellyConfig(supportedProperties, jellyfishFile)
 }
 
 const pathOrCmd = argv._[0]
