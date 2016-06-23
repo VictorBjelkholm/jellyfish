@@ -37,8 +37,12 @@ commands.new = () => {
 }
 commands.print_directory = (path) => {
   findProjectsInFolder(path).then((projects) => {
-    filter(projects, [argv.filter]).forEach((project) => {
-      printJellyConfig(supportedProperties, project)
+    projects.forEach((project) => {
+      var jellyfishFile = project
+      if (argv.filter !== undefined) {
+        jellyfishFile = filter(jellyfishFile, argv.filter.split(','))
+      }
+      printJellyConfig(supportedProperties, jellyfishFile)
     })
   })
 }
