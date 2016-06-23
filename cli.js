@@ -6,6 +6,7 @@ const findProjectsInFolder = require('./lib/find-projects-in-folder')
 const createJellyfishFile = require('./lib/create-jellyfish-file')
 const printJellyConfig = require('./lib/print-jellyfish-config')
 const filter = require('./lib/filter')
+const search = require('./lib/search')
 
 const supportedProperties = [
   'description',
@@ -24,11 +25,6 @@ const argv = require('minimist')(process.argv.slice(2), {
     'search': ['s']
   }
 })
-if (argv.search !== undefined) {
-  console.log(colors.yellow('NOT IMPLEMENTED YET!'))
-  console.log('Should do some searching as well')
-  console.log(argv.search)
-}
 
 const commands = {}
 
@@ -37,19 +33,36 @@ commands.new = () => {
 }
 commands.print_directory = (path) => {
   findProjectsInFolder(path).then((projects) => {
-    projects.forEach((project) => {
-      var jellyfishFile = project
-      if (argv.filter !== undefined) {
-        jellyfishFile = filter(jellyfishFile, argv.filter.split(','))
-      }
-      printJellyConfig(supportedProperties, jellyfishFile)
-    })
+    var projectsToPrint = projects
+    if (argv.search !== undefined) {
+      const searchTerms = argv.search.split(',').map((item) => {
+        const splitted = item.split('=')
+        const attr = splitted[0]
+        const term = splitted[1]
+        return {attr, term}
+      })
+      projectsToPrint = search(projects, searchTerms[0].attr, searchTerms[0].term)
+    }
+    if (projectsToPrint.length === 0) {
+      console.log(colors.yellow('Warning: Found no matching projects'))
+    } else {
+      projectsToPrint.forEach((project) => {
+        var jellyfishFile = project
+        if (argv.filter !== undefined) {
+          jellyfishFile = filter(jellyfishFile, argv.filter.split(','))
+        }
+        printJellyConfig(supportedProperties, jellyfishFile)
+      })
+    }
   })
 }
 commands.print_file = (path) => {
   var jellyfishFile = readJellyfishFile(path)
   if (argv.filter !== undefined) {
     jellyfishFile = filter(jellyfishFile, argv.filter.split(','))
+  }
+  if (argv.search !== undefined) {
+    console.log(colors.yellow('Warning: search parameter is only valid if path is a directory'))
   }
   printJellyConfig(supportedProperties, jellyfishFile)
 }
