@@ -1,0 +1,12 @@
+{
+  "name": "jellyfish",
+  "description": "Project to organize your projects",
+  "tags": [
+    "tools",
+    "projects",
+    "project management"
+  ],
+  "type": "Project",
+  "active": false,
+  "finished": false
+}

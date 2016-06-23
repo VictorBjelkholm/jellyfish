@@ -1,17 +1,28 @@
 {
   "name": "jellyfish",
   "version": "0.0.1",
-  "description": "",
+  "description": "Project to organize your projects",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ava",
+    "test:watch": "ava --watch"
   },
-  "keywords": [],
+  "keywords": [
+    "tools",
+    "projects",
+    "project management"
+  ],
+  "bin": {
+    "jellyfish": "./cli.js"
+  },
   "author": "Victor Bjelkholm <victorbjelkholm@gmail.com> (https://www.github.com/victorbjelkholm)",
   "license": "MIT",
   "dependencies": {
+    "ava": "0.15.2",
     "colors": "1.1.2",
     "fs-extra": "0.30.0",
+    "inquirer": "1.0.3",
+    "minimist": "1.2.0",
     "node-fs-extra": "0.8.1"
   }
 }
