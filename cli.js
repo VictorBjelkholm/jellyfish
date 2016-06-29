@@ -59,19 +59,22 @@ const printProjects = (projects) => {
 
 const commands = {}
 
+const homedir = require('os').homedir()
+const cache_location = pathJoin(homedir, '.jellyfish-cache')
+
 commands.new = () => {
   createJellyfishFile()
 }
 commands.index = (path) => {
   console.log('Indexing ' + pathResolve(path))
   findProjectsInFolder(path).then((projects) => {
-    fs.writeFileSync(pathJoin(process.cwd(), '.jellyfish-cache'), JSON.stringify(projects))
+    fs.writeFileSync(cache_location, JSON.stringify(projects))
   })
 }
 commands.print_directory = (path) => {
   var projects = []
-  if (shouldUseCache && fs.existsSync(pathJoin(process.cwd(), '.jellyfish-cache'))) {
-    projects = JSON.parse(fs.readFileSync(pathJoin(process.cwd(), '.jellyfish-cache')))
+  if (shouldUseCache && fs.existsSync(cache_location)) {
+    projects = JSON.parse(fs.readFileSync(cache_location))
     printProjects(projects)
   } else {
     if (shouldUseCache) {
@@ -79,7 +82,7 @@ commands.print_directory = (path) => {
     }
     findProjectsInFolder(path).then((projects) => {
       printProjects(projects)
-      fs.writeFileSync(pathJoin(process.cwd(), '.jellyfish-cache'), JSON.stringify(projects))
+      fs.writeFileSync(cache_location, JSON.stringify(projects))
     })
   }
 }
